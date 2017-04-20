@@ -1,0 +1,32 @@
+SELECT fifteen.ORG_ID, 
+       fifteen.ORG_NAME, 
+       fifteen.STATE, 
+       fifteen.AUDIT_DATE AS "15AuditDate", 
+       fifteen.OPINION_DATE AS "15OpDate", 
+       fifteen.UPLOAD_DATE AS "15UplDate",
+       docact.COMMENTS AS "PFSurvComments"
+FROM (SELECT DISTINCT 
+            ORG_NAME, ORG_ID, AUDIT_DATE, OPINION_DATE, UPLOAD_DATE, STATE
+      FROM priv
+      WHERE 1=1
+            AND EXTRACT(YEAR FROM AUDIT_DATE) = 2015
+            AND OPINION_DATE < (sysdate-395)
+            AND FILE_TYPE = 'AUDIT') fifteen 
+LEFT JOIN (SELECT DISTINCT 
+            ORG_NAME, ORG_ID, AUDIT_DATE, OPINION_DATE, UPLOAD_DATE, STATE
+      FROM priv
+      WHERE 1=1
+            AND EXTRACT(YEAR FROM AUDIT_DATE) = 2016
+            AND FILE_TYPE = 'AUDIT') sixteen
+ON fifteen.ORG_ID = sixteen.ORG_ID
+LEFT JOIN (SELECT DISTINCT 
+            ORG_ID, DOC_YEAR, COMMENTS, NEXT_ACTIVITY_CODE, NEXT_ACTIVITY_DATE, UPD_DATE, UPD_ID
+      FROM priv1
+      WHERE 1=1
+      AND DOC_YEAR > 2015) docact
+ON fifteen.ORG_ID = docact.ORG_ID
+WHERE 1=1
+    AND fifteen.ORG_ID <> 0
+    AND sixteen.AUDIT_DATE IS NULL
+ORDER BY fifteen.STATE, fifteen.ORG_NAME
+;
