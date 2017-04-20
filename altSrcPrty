@@ -1,0 +1,28 @@
+SELECT DISTINCT 
+    csc.XID,
+    boed.Y_ID,
+    boed.Y_NAME,
+    csc.CREDITNAME,
+    CASE 
+                WHEN boed.Y_ID = hpc.Y_ID
+                THEN 'TIER 1'
+                ELSE 'N'
+    END AS Tier1,
+    info.OPINION_DATE,
+    csc.FYE_1 AS MRFYE
+FROM Z boed
+    LEFT JOIN (SELECT MAX(Y_ID) AS Y_ID
+                FROM Q
+                GROUP BY Y_ID) hpc 
+          ON boed.Y_ID = hpc.Y_ID
+    JOIN (SELECT Y_ID, OPINION_DATE
+                FROM U  
+                WHERE 1=1
+                AND DOC_TYPE_NAME = 'Audit') info
+                ON boed.Y_ID = info.Y_ID
+    JOIN (SELECT XID, Y_ID, FYE_1, CREDITNAME
+                FROM T) csc
+                ON boed.Y_ID = csc.Y_ID
+WHERE 1=1
+ORDER BY Y_ID
+;
