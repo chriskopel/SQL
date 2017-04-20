@@ -1,0 +1,13 @@
+--searching for two columns in the same table
+SELECT owner, table_name
+FROM all_tab_columns
+WHERE column_name IN ('Y_ID', 'DELIVERY_TYPE')
+GROUP BY owner, table_name
+HAVING COUNT(*) = 2;
+
+--searching for a specific column in a schema
+SELECT owner, table_name, column_name
+FROM all_tab_columns
+WHERE UPPER(column_name)LIKE UPPER('%contact_upd_date%')
+AND owner LIKE 'x'
+ORDER BY owner DESC;
